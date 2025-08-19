@@ -1,0 +1,6 @@
+function character_data_get_all()
+{
+    static _data = [character_define("eureka", anim_timings_eureka, character_init_eureka, 213, 494, 881, 427, 31, 1444, 549, 1514, 44, 248, 541, 804, 523, ["texture_gameplay_eureka"], cpu_script_eureka), character_define("knockt", anim_timings_knockt, character_init_knockt, 178, 670, 71, 212, 242, 1270, 1217, 1025, 439, 45, 619, 1548, 721, ["texture_gameplay_knockt"], cpu_script_knockt), character_define("rend", anim_timings_rend, character_init_rend, 437, 850, 1239, 1311, 76, 386, 554, 750, 358, 184, 550, 816, 1415, ["texture_gameplay_rend"], cpu_script_rend),
+character_define("pulse", anim_timings_eureka, character_init0, spr_css_portrait_pulse, spr_css_idle_pulseREAL, spr_css_idle_pulseREAL, spr_css_idle_pulseREAL, ui_background_stick6, spr_css_idle_pulseREAL, spr_css_idle_pulseREAL, spr_lose_loop_rend, spr_win_rend, spr_nspec_knockt, spr_palette_pulse, spr_hud_pulse, spr_stock_pulse, ["texture_gameplay_rend"], cpu_script_rend), character_define("stick", anim_timings_stick, character_init_stick, spr_css_portrait_stick, spr_css_idle_stick, spr_css_idle_stick, spr_css_idle_stick, ui_background_stick6, spr_css_idle_stick, spr_css_idle_stick, spr_css_idle_stick, spr_css_idle_stick, spr_stick_idle, spr_stick_palette, spr_stick_portrait, spr_stock_stick, ["texture_gameplay_rend"], cpu_script1) ];
+    return _data;
+}

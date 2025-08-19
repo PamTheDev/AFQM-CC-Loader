@@ -1,0 +1,1 @@
+character_define("pulse", anim_timings_eureka, character_init0, spr_css_portrait_pulse, spr_css_idle_pulseREAL, spr_css_idle_pulseREAL, spr_css_idle_pulseREAL, ui_background_stick6, spr_css_idle_pulseREAL, spr_css_idle_pulseREAL, spr_lose_loop_rend, spr_win_rend, spr_nspec_knockt, spr_palette_pulse, spr_hud_pulse, spr_stock_pulse, ["texture_gameplay_rend"], cpu_script_rend)
