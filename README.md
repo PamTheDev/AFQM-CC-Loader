@@ -45,7 +45,7 @@ REMEMBER TO SAVE THE FILE. YOU CAN DO THIS BY CLICKING 'FILE -> SAVE' OR BY CLIC
 
 <img width="292" height="97" alt="image" src="https://github.com/user-attachments/assets/f321322c-6a30-4598-a4bb-9af75c5634c0" />
 
-THEN ON HE WINDOW THAT POPS UP JUST CLICK THE SAVE BUTTON IN THE CORNER.
+THEN ON THE WINDOW THAT POPS UP JUST CLICK THE SAVE BUTTON IN THE CORNER.
 
 <img width="833" height="412" alt="image" src="https://github.com/user-attachments/assets/22636050-c7fb-4224-a528-4bea24accd51" />
 
