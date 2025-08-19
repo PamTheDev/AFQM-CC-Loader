@@ -16,6 +16,9 @@ All you need to do is copy your desired file you downloaded (https://github.com/
 
 <img width="612" height="203" alt="image" src="https://github.com/user-attachments/assets/ff78172a-a913-4633-909f-7a1f13349ed4" />
 
+This is the step where you add any character files into the 'Character Assets' folder.
+## Note that if the GML files arent in the "Character Assets" folder/ are in a subfolder while the script to import them into the game is running, then the file **WILL NOT BE IMPORTED.**
+
 ## 3. Loading your characters
 Now that everything is unzipped and in the right places, you can now try running the script. To run the script, open your 'data.win' file that is in your game files, it should have a blue heart looking object as it's icon.
 
