@@ -25,7 +25,7 @@ Then, you want to cocpy and paste the whole script, with no sprite numbers, into
 ## 2. Adding Sprites
 This tool uses the 'ImportGraphicsAdvanced.csx' Script for importing sprites to the game. 
 
-So, all you need to do is have the sprites be GIFs with names that are the same as the sprite you want them to be named, (ex. spr_bair_stick.gif). After you have all the sprites in GIF format (or PNG if the sprite doesn't have any frames) you can add them into their own folder labeled "My CC Animations" or whatever you want, or you can have them be in the same folder as the GML files.
+So, all you need to do is have the sprites be GIFs with names that are the same as the sprite you want them to be named, (ex. spr_bair_stick.gif) or have the sprites have their own folder with each of the frames being PNGs with "_frame" the frame number being frame as the name ("spr_bair_stick_0", "spr_bair_stick_1" etc.) . After you have all the sprites in GIF format or folder format (or PNG if the sprite doesn't have any frames) you can add them into their own folder labeled "My CC Animations" or whatever you want, or you can have them be in the same folder as the GML files.
 
 <img width="606" height="484" alt="image" src="https://github.com/user-attachments/assets/a68c5713-16a1-4ae4-a9a5-62bc2b61f7c0" />
 
