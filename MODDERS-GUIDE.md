@@ -48,4 +48,4 @@ So after following this tutorial, your directory should look *similar* (not iden
 
 <img width="257" height="552" alt="image" src="https://github.com/user-attachments/assets/a0833c68-c690-4b64-9b74-5c1f6713876b" />
 
-Make sure all the information is stored as you want it, but do note that if the GML files arent in the "Character Assets" folder while the script to import them into the game is running, then the script **WILL NOT BE IMPORTED.**
+Make sure all the information is stored as you want it before distributing.
