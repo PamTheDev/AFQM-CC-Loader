@@ -1,4 +1,4 @@
-# A few Quick Matches: Custom Character Loader
+# A few Quick Matches: Custom ModLoader
 A simple UMT script that imports Custom Character Scripts and sprites directly into the game easily.
 
 # How It Works
