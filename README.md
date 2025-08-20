@@ -15,7 +15,7 @@ You can find this in steam by clicking the settings icon on the game page and ho
 ## 2. Unzipping the loader
 All you need to do is copy your desired file you downloaded (https://github.com/PamTheDev/AFQM-CC-Loader/releases/tag/Stable) and paste it in your game files folder so it is located there. Then, Simply unzip it to finish this step.
 
-<img width="844" height="189" alt="image" src="https://github.com/user-attachments/assets/0728ace2-0823-4e22-879f-626e97625445" />
+<img width="607" height="191" alt="image" src="https://github.com/user-attachments/assets/9772402a-1f63-45e9-b002-6000174bfaa5" />
 
 ### This is the step where you add any character files into the 'Character Assets' folder.
 
@@ -32,18 +32,18 @@ Now that your data.win file is open, click on the scripts button, then on the dr
 
 Then, select the folder you unzipped in step 2. and select the "ImportCharacters.csx" file.
 
-<img width="1004" height="549" alt="image" src="https://github.com/user-attachments/assets/9cb48eb9-562c-4a40-80c3-5ea650247709" />
+<img width="844" height="189" alt="image" src="https://github.com/user-attachments/assets/fdb3cc50-b6bb-4000-8892-68deefd58ff4" />
 
 After that, another popup window should appear asking for you to select a folder, all you need to do is highlight the 'Character Assets' folser and click 'Select Folder'.
 
-## 5. Finishing up
-Next, a few popup windows will appear **ALL YOU HAVE TO DO IS HIT 'CONFIRM' OR 'OK'** until it says the scripts are finished.
+## 4. Finishing up
+Next, a window will appear and will tell you what the script is currently doing, once it disappears you can move on to the next step.
 
-<img width="401" height="150" alt="image" src="https://github.com/user-attachments/assets/f3b8c483-7d1a-4453-a4db-caf9c5391ede" />
+<img width="451" height="155" alt="image" src="https://github.com/user-attachments/assets/45c0cbc2-93cc-4b98-8a44-87a693bf4710" />
 
-*(This is the final popup that should appear)*
+*It should look something like this*
 
-# 6. THE MOST IMPORTANT STEP
+# 5. THE MOST IMPORTANT STEP
 REMEMBER TO SAVE THE FILE. YOU CAN DO THIS BY CLICKING 'FILE -> SAVE' OR BY CLICKING 'CTRL+S'.
 
 <img width="292" height="97" alt="image" src="https://github.com/user-attachments/assets/f321322c-6a30-4598-a4bb-9af75c5634c0" />
