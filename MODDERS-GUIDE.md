@@ -48,4 +48,12 @@ So after following this tutorial, your directory should look *similar* (not iden
 
 <img width="257" height="552" alt="image" src="https://github.com/user-attachments/assets/a0833c68-c690-4b64-9b74-5c1f6713876b" />
 
+## How to make reskin mods compatible
+For reskin mods it is a VERY simple process.
+
+<img width="505" height="535" alt="image" src="https://github.com/user-attachments/assets/aeb7318c-5ba7-4f8e-a112-43d7955da731" />
+
+If your reskin mod uses importgraphicsadvanced for importing than this mod loader will do all the work for the user. All you have to do is move all your folders into a folder with the name of your reskin and the mod is now compatible!
+
+
 Make sure all the information is stored as you want it before distributing. I suggest you package your mod with the "mod-loader-instructions.txt" file included.
