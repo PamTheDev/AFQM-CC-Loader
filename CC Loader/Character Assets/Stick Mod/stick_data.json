@@ -1,1 +1,0 @@
-character_define("stick", anim_timings_stick, character_init_stick, spr_css_portrait_stick, spr_css_idle_stick, spr_css_idle_stick, spr_css_idle_stick, ui_background_stick6, spr_css_idle_stick, spr_css_idle_stick, spr_css_idle_stick, spr_css_idle_stick, spr_stick_idle, spr_stick_palette, spr_stick_portrait, spr_stock_stick, ["texture_gameplay_rend"], cpu_script1)
