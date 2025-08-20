@@ -3,6 +3,7 @@ A simple UMT script that imports Custom Character Scripts and sprites directly i
 
 # How It Works
 The mod loader adds any associated gml scripts, and any associated art for a custom character given it is insde of the "Character Assets" folder.
+### YOU CAN RUN THE SCRIPT AS MANY TIMES AS YOU WANT/ NEED, IT WONT BREAK
 # How to use 
 ## 0. 
 First before any mod loading, you need UndertaleModTool (https://github.com/UnderminersTeam/UndertaleModTool/releases/download/0.8.3.0/UndertaleModTool_v0.8.3.0-Windows-SingleFile.zip). This is ***REQUIRED*** for the loader to work. Once you have it installed (which means it is NOT in a zipped/ compressed file and is unzipped) then you can move on.
