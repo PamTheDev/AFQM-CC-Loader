@@ -15,7 +15,7 @@ You can find this in steam by clicking the settings icon on the game page and ho
 ## 2. Unzipping the loader
 All you need to do is copy your desired file you downloaded (https://github.com/PamTheDev/AFQM-CC-Loader/releases/tag/Stable) and paste it in your game files folder so it is located there. Then, Simply unzip it to finish this step.
 
-<img width="612" height="203" alt="image" src="https://github.com/user-attachments/assets/ff78172a-a913-4633-909f-7a1f13349ed4" />
+<img width="844" height="189" alt="image" src="https://github.com/user-attachments/assets/0728ace2-0823-4e22-879f-626e97625445" />
 
 ### This is the step where you add any character files into the 'Character Assets' folder.
 
