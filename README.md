@@ -2,7 +2,7 @@
 A simple UMT script that imports Custom Character Scripts and sprites directly into the game easily.
 
 # How It Works
-The mod loader adds any associated gml scripts, and any associated art for a custom character given it is insde of the "Character Assets" folder.
+The mod loader adds any associated gml scripts, and any associated art for a custom character given it is insde of the "Import Assets" folder.
 ### YOU CAN RUN THE SCRIPT AS MANY TIMES AS YOU WANT/ NEED, IT WONT BREAK
 # How to use 
 ## 0. 
@@ -17,7 +17,7 @@ All you need to do is copy your desired file you downloaded (https://github.com/
 
 <img width="607" height="191" alt="image" src="https://github.com/user-attachments/assets/9772402a-1f63-45e9-b002-6000174bfaa5" />
 
-### This is the step where you add any character files into the 'Character Assets' folder.
+### This is the step where you add any character files into the 'Import Assets' folder.
 
 ## 3. Loading your characters
 Now that everything is unzipped and in the right places, you can now try running the script. To run the script, open your 'data.win' file that is in your game files, it should have a blue heart looking object as it's icon.
