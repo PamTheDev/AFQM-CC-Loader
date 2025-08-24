@@ -1,6 +1,3 @@
-// Combined Import Script: Imports GML scripts first, then graphics (sprites/backgrounds).
-// Combines Import_Scripts.csx and ImportGraphicsAdvanced.csx logic.
-
 // --- Imports ---
 using System;
 using System.IO;
@@ -86,6 +83,7 @@ uint specialVer = 1;
 string offresult = "Center"; // Default origin
 int playback = 0; // Default to "Frames Per Game Frame"
 HashSet<string> spritesStartAt1 = new HashSet<string>();
+bool createCollisionMasks = false;
 
 // --- Use CheckValidity from ImportGraphicsAdvanced, but skip folder prompt ---
 string packDir = Path.Combine(ExePath, "Packager");
@@ -252,8 +250,8 @@ foreach (string file in dirFiles)
 // --- Ask for sprite import parameters ---
 OffsetResult(); // Prompt user for sprite import parameters
 
-// --- Now run the graphics import logic from ImportGraphicsAdvanced ---
-UpdateProgress("Importing graphics (sprites/backgrounds)..."); // Update progress for graphics import
+// --- Now run the graphics import logic with improved hurtbox importing ---
+UpdateProgress("Importing graphics (sprites/backgrounds)...");
 try
 {
     string sourcePath = importFolder;
@@ -269,7 +267,7 @@ try
     int lastTextPageItem = Data.TexturePageItems.Count - 1;
 
     bool bboxMasks = Data.IsVersionAtLeast(2024, 6);
-    Dictionary<UndertaleSprite, Node> maskNodes = new();
+    Dictionary<UndertaleSprite, Dictionary<int, Node>> maskNodeLookup = new();
 
     // Import everything into UTMT
     string prefix = outName.Replace(Path.GetExtension(outName), "");
@@ -295,12 +293,42 @@ try
                 texturePageItem.SourceY = (ushort)n.Bounds.Y;
                 texturePageItem.SourceWidth = (ushort)n.Bounds.Width;
                 texturePageItem.SourceHeight = (ushort)n.Bounds.Height;
-                texturePageItem.TargetX = (ushort)n.Texture.TargetX;
-                texturePageItem.TargetY = (ushort)n.Texture.TargetY;
-                texturePageItem.TargetWidth = (ushort)n.Bounds.Width;
-                texturePageItem.TargetHeight = (ushort)n.Bounds.Height;
-                texturePageItem.BoundingWidth = (ushort)n.Texture.BoundingWidth;
-                texturePageItem.BoundingHeight = (ushort)n.Texture.BoundingHeight;
+
+                // Special handling for palette textures
+                string texFileName = n.Texture.Source.ToLower();
+                if (texFileName.Contains("_palette"))
+                {
+                    // Set bounding box and target position to match sprite size and (0,0)
+                    // Try to get the sprite for this texture if possible
+                    string spriteName = Path.GetFileNameWithoutExtension(n.Texture.Source);
+                    UndertaleSprite spr = Data.Sprites.ByName(spriteName);
+                    if (spr != null)
+                    {
+                        texturePageItem.BoundingWidth = (ushort)spr.Width;
+                        texturePageItem.BoundingHeight = (ushort)spr.Height;
+                        texturePageItem.TargetWidth = (ushort)spr.Width;
+                        texturePageItem.TargetHeight = (ushort)spr.Height;
+                    }
+                    else
+                    {
+                        // fallback to node bounds if sprite not found
+                        texturePageItem.BoundingWidth = (ushort)n.Bounds.Width;
+                        texturePageItem.BoundingHeight = (ushort)n.Bounds.Height;
+                        texturePageItem.TargetWidth = (ushort)n.Bounds.Width;
+                        texturePageItem.TargetHeight = (ushort)n.Bounds.Height;
+                    }
+                    texturePageItem.TargetX = 0;
+                    texturePageItem.TargetY = 0;
+                }
+                else
+                {
+                    texturePageItem.TargetX = (ushort)n.Texture.TargetX;
+                    texturePageItem.TargetY = (ushort)n.Texture.TargetY;
+                    texturePageItem.TargetWidth = (ushort)n.Bounds.Width;
+                    texturePageItem.TargetHeight = (ushort)n.Bounds.Height;
+                    texturePageItem.BoundingWidth = (ushort)n.Texture.BoundingWidth;
+                    texturePageItem.BoundingHeight = (ushort)n.Texture.BoundingHeight;
+                }
                 texturePageItem.TexturePage = texture;
 
                 // Add this texture to UMT
@@ -360,6 +388,8 @@ try
                         frame = 0;
                     }
 
+                    var isHurtbox = spriteName.EndsWith("_hb");
+
                     if (spritesStartAt1.Contains(spriteName))
                     {
                         frame--;
@@ -386,6 +416,10 @@ try
                         newSprite.GMS2PlaybackSpeed = animSpd;
                         newSprite.IsSpecialType = isSpecial;
                         newSprite.SVersion = specialVer;
+
+                        if (isHurtbox)
+                            newSprite.SepMasks = UndertaleSprite.SepMaskType.Precise;
+
                         switch (offresult)
                         {
                             case ("Top Left"):
@@ -432,26 +466,23 @@ try
                         }
 
                         // Only generate collision masks for sprites that need them (in newer GameMaker versions)
-                        if (!noMasksForBasicRectangles ||
-                            newSprite.SepMasks is not (UndertaleSprite.SepMaskType.AxisAlignedRect or UndertaleSprite.SepMaskType.RotatedRect))
+                        if (isHurtbox && createCollisionMasks)
                         {
-                            // Generate mask later (when the current atlas is about to be unloaded)
-                            maskNodes.Add(newSprite, n);
+                            maskNodeLookup.Add(newSprite, new() { { frame, n } });
                         }
 
                         newSprite.Textures.Add(texentry);
                         Data.Sprites.Add(newSprite);
                         continue;
                     }
-                    if (frame > sprite.Textures.Count - 1)
+
+                    if (isHurtbox && createCollisionMasks)
                     {
-                        while (frame > sprite.Textures.Count - 1)
-                        {
-                            sprite.Textures.Add(texentry);
-                        }
-                        continue;
+                        sprite.CollisionMasks.Clear();
+                        if (!maskNodeLookup.Any(node => node.Key.Name == sprite.Name))
+                            maskNodeLookup.Add(sprite, new());
                     }
-                    sprite.Textures[frame] = texentry;
+
                     sprite.GMS2PlaybackSpeedType = (AnimSpeedType)playback;
                     sprite.GMS2PlaybackSpeed = animSpd;
                     sprite.IsSpecialType = isSpecial;
@@ -464,44 +495,52 @@ try
                     bool changedSpriteDimensions = (oldWidth != sprite.Width || oldHeight != sprite.Height);
 
                     // Update origin
-                    switch (offresult)
+                    if (stripped.Contains("_palette"))
                     {
-                        case ("Top Left"):
-                            sprite.OriginX = 0;
-                            sprite.OriginY = 0;
-                            break;
-                        case ("Top Center"):
-                            sprite.OriginX = (int)(sprite.Width / 2);
-                            sprite.OriginY = 0;
-                            break;
-                        case ("Top Right"):
-                            sprite.OriginX = (int)(sprite.Width);
-                            sprite.OriginY = 0;
-                            break;
-                        case ("Center Left"):
-                            sprite.OriginX = 0;
-                            sprite.OriginY = (int)(sprite.Height / 2);
-                            break;
-                        case ("Center"):
-                            sprite.OriginX = (int)(sprite.Width / 2);
-                            sprite.OriginY = (int)(sprite.Height / 2);
-                            break;
-                        case ("Center Right"):
-                            sprite.OriginX = (int)(sprite.Width);
-                            sprite.OriginY = (int)(sprite.Height / 2);
-                            break;
-                        case ("Bottom Left"):
-                            sprite.OriginX = 0;
-                            sprite.OriginY = (int)(sprite.Height);
-                            break;
-                        case ("Bottom Center"):
-                            sprite.OriginX = (int)(sprite.Width / 2);
-                            sprite.OriginY = (int)(sprite.Height);
-                            break;
-                        case ("Bottom Right"):
-                            sprite.OriginX = (int)(sprite.Width);
-                            sprite.OriginY = (int)(sprite.Height);
-                            break;
+                        sprite.OriginX = 0;
+                        sprite.OriginY = 0;
+                    }
+                    else
+                    {
+                        switch (offresult)
+                        {
+                            case ("Top Left"):
+                                sprite.OriginX = 0;
+                                sprite.OriginY = 0;
+                                break;
+                            case ("Top Center"):
+                                sprite.OriginX = (int)(sprite.Width / 2);
+                                sprite.OriginY = 0;
+                                break;
+                            case ("Top Right"):
+                                sprite.OriginX = (int)(sprite.Width);
+                                sprite.OriginY = 0;
+                                break;
+                            case ("Center Left"):
+                                sprite.OriginX = 0;
+                                sprite.OriginY = (int)(sprite.Height / 2);
+                                break;
+                            case ("Center"):
+                                sprite.OriginX = (int)(sprite.Width / 2);
+                                sprite.OriginY = (int)(sprite.Height / 2);
+                                break;
+                            case ("Center Right"):
+                                sprite.OriginX = (int)(sprite.Width);
+                                sprite.OriginY = (int)(sprite.Height / 2);
+                                break;
+                            case ("Bottom Left"):
+                                sprite.OriginX = 0;
+                                sprite.OriginY = (int)(sprite.Height);
+                                break;
+                            case ("Bottom Center"):
+                                sprite.OriginX = (int)(sprite.Width / 2);
+                                sprite.OriginY = (int)(sprite.Height);
+                                break;
+                            case ("Bottom Right"):
+                                sprite.OriginX = (int)(sprite.Width);
+                                sprite.OriginY = (int)(sprite.Height);
+                                break;
+                        }
                     }
 
                     // Grow bounding box depending on how much is trimmed
@@ -537,63 +576,74 @@ try
                     }
 
                     // Only generate collision masks for sprites that need them (in newer GameMaker versions)
-                    if (!noMasksForBasicRectangles ||
-                        sprite.SepMasks is not (UndertaleSprite.SepMaskType.AxisAlignedRect or UndertaleSprite.SepMaskType.RotatedRect) ||
-                        sprite.CollisionMasks.Count > 0)
+                    if (isHurtbox && createCollisionMasks)
                     {
-                        if ((bboxMasks && grewBoundingBox) ||
-                            (sprite.SepMasks is UndertaleSprite.SepMaskType.Precise && sprite.CollisionMasks.Count == 0) ||
-                            (!bboxMasks && changedSpriteDimensions))
+                        if (!maskNodeLookup[sprite].ContainsKey(frame))
+                            maskNodeLookup[sprite].Add(frame, n);
+                    }
+
+                    if (frame > sprite.Textures.Count - 1)
+                    {
+                        while (frame > sprite.Textures.Count - 1)
                         {
-                            // Use this node for the sprite's collision mask if the bounding box grew (or if no collision mask exists for a precise sprite)
-                            maskNodes[sprite] = n;
+                            sprite.Textures.Add(texentry);
+                        }
+                        continue;
+                    }
+                    sprite.Textures[frame] = texentry;
+                }
+            }
+        }
+
+        if (createCollisionMasks)
+        {
+            // Update masks for when bounding box masks are enabled
+            foreach ((UndertaleSprite maskSpr, Dictionary<int, Node> maskNodes) in maskNodeLookup)
+            {
+                foreach (var (index, maskNode) in maskNodes.OrderBy(x => x.Key))
+                {
+                    // Generate collision mask using either bounding box or sprite dimensions
+                    maskSpr.CollisionMasks.Add(maskSpr.NewMaskEntry(Data));
+                    (int maskWidth, int maskHeight) = maskSpr.CalculateMaskDimensions(Data);
+                    int maskStride = ((maskWidth + 7) / 8) * 8;
+
+                    BitArray maskingBitArray = new BitArray(maskStride * maskHeight);
+                    for (int y = 0; y < maskHeight && y < maskNode.Bounds.Height; y++)
+                    {
+                        for (int x = 0; x < maskWidth && x < maskNode.Bounds.Width; x++)
+                        {
+                            IMagickColor<byte> pixelColor = atlasPixels.GetPixel(x + maskNode.Bounds.X, y + maskNode.Bounds.Y).ToColor();
+                            if (bboxMasks)
+                            {
+                                maskingBitArray[(y * maskStride) + x] = (pixelColor.A > 0);
+                            }
+                            else
+                            {
+                                maskingBitArray[((y + maskNode.Texture.TargetY) * maskStride) + x + maskNode.Texture.TargetX] = (pixelColor.A > 0);
+                            }
                         }
                     }
+                    BitArray tempBitArray = new BitArray(maskingBitArray.Length);
+                    for (int i = 0; i < maskingBitArray.Length; i += 8)
+                    {
+                        for (int j = 0; j < 8; j++)
+                        {
+                            tempBitArray[j + i] = maskingBitArray[-(j - 7) + i];
+                        }
+                    }
+
+                    int numBytes = maskingBitArray.Length / 8;
+                    byte[] bytes = new byte[numBytes];
+                    tempBitArray.CopyTo(bytes, 0);
+                    for (int i = 0; i < bytes.Length; i++)
+                        maskSpr.CollisionMasks[index].Data[i] = bytes[i];
                 }
+
+                maskNodes.Clear();
             }
         }
 
-        // Update masks for when bounding box masks are enabled
-        foreach ((UndertaleSprite maskSpr, Node maskNode) in maskNodes)
-        {
-            // Generate collision mask using either bounding box or sprite dimensions
-            maskSpr.CollisionMasks.Clear();
-            maskSpr.CollisionMasks.Add(maskSpr.NewMaskEntry(Data));
-            (int maskWidth, int maskHeight) = maskSpr.CalculateMaskDimensions(Data);
-            int maskStride = ((maskWidth + 7) / 8) * 8;
-
-            BitArray maskingBitArray = new BitArray(maskStride * maskHeight);
-            for (int y = 0; y < maskHeight && y < maskNode.Bounds.Height; y++)
-            {
-                for (int x = 0; x < maskWidth && x < maskNode.Bounds.Width; x++)
-                {
-                    IMagickColor<byte> pixelColor = atlasPixels.GetPixel(x + maskNode.Bounds.X, y + maskNode.Bounds.Y).ToColor();
-                    if (bboxMasks)
-                    {
-                        maskingBitArray[(y * maskStride) + x] = (pixelColor.A > 0);
-                    }
-                    else
-                    {
-                        maskingBitArray[((y + maskNode.Texture.TargetY) * maskStride) + x + maskNode.Texture.TargetX] = (pixelColor.A > 0);
-                    }
-                }
-            }
-            BitArray tempBitArray = new BitArray(maskingBitArray.Length);
-            for (int i = 0; i < maskingBitArray.Length; i += 8)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    tempBitArray[j + i] = maskingBitArray[-(j - 7) + i];
-                }
-            }
-
-            int numBytes = maskingBitArray.Length / 8;
-            byte[] bytes = new byte[numBytes];
-            tempBitArray.CopyTo(bytes, 0);
-            for (int i = 0; i < bytes.Length; i++)
-                maskSpr.CollisionMasks[0].Data[i] = bytes[i];
-        }
-        maskNodes.Clear();
+        maskNodeLookup.Clear();
 
         // Increment atlas
         atlasCount++;
@@ -1098,150 +1148,15 @@ public static SpriteType GetSpriteType(string path)
     return SpriteType.Unknown;
 }
 
+// No user dialog: set all options to default values (on/enabled)
 public void OffsetResult()
 {
-    Form form = new Form()
-    {
-        Size = new Size(300, 200),
-        Text = "Select Sprite Parameters",
-        FormBorderStyle = FormBorderStyle.FixedDialog,
-        MaximizeBox = false,
-        MinimizeBox = false,
-        StartPosition = FormStartPosition.CenterScreen,
-        AutoScaleMode = AutoScaleMode.Dpi,
-        AutoScaleDimensions = new Size(96, 96),
-    };
-
-    Func<int, int, Size> logicalSize = (w, h) => form.LogicalToDeviceUnits(new Size(w, h));
-
-    ToolTip toolTip = new ToolTip();
-
-    int labelCover = 3;
-
-    Label specialLabel = new Label();
-    specialLabel.Location = new Point(5, 10);
-    specialLabel.Text = "Special Version:";
-    specialLabel.Size = logicalSize(110, 30 - labelCover);
-    form.Controls.Add(specialLabel);
-
-    CheckBox isSpecialBox = new System.Windows.Forms.CheckBox();
-    isSpecialBox.Enabled = Data.IsGameMaker2();
-    isSpecialBox.Location = new Point(specialLabel.Width + 5, 10);
-    isSpecialBox.Size = logicalSize(20, 20);
-    toolTip.SetToolTip(isSpecialBox, "Is special type? (required for setting animation speed)");
-    form.Controls.Add(isSpecialBox);
-
-    TextBox specialVerBox = new System.Windows.Forms.TextBox();
-    specialVerBox.Enabled = Data.IsGameMaker2();
-    specialVerBox.AcceptsReturn = false;
-    specialVerBox.AcceptsTab = false;
-    specialVerBox.AutoSize = true;
-    specialVerBox.Multiline = false;
-    specialVerBox.Text = "1";
-    specialVerBox.Name = "Special Version";
-    specialVerBox.Location = new Point(specialLabel.Width + 5 + isSpecialBox.Width, 10);
-    specialVerBox.Size = logicalSize(30, 30);
-    specialVerBox.Anchor = AnchorStyles.Right;
-    form.Controls.Add(specialVerBox);
-
-    Label label1 = new Label();
-    label1.Location = new Point(5, specialVerBox.Height + 15);
-    label1.Text = "Animation Speed:";
-    label1.Size = logicalSize(110, 30 - labelCover);
-    form.Controls.Add(label1);
-
-    TextBox textBox = new System.Windows.Forms.TextBox();
-    textBox.Enabled = Data.IsGameMaker2();
-    textBox.AcceptsReturn = false;
-    textBox.AcceptsTab = false;
-    textBox.AutoSize = true;
-    textBox.Multiline = false;
-    textBox.Text = "1";
-    textBox.Name = "Animation Speed";
-    textBox.Location = new Point(label1.Width + 5, specialVerBox.Height + 15);
-    textBox.Size = logicalSize(30, 30);
-    textBox.Anchor = AnchorStyles.Right;
-    form.Controls.Add(textBox);
-
-    Label label2 = new Label();
-    label2.Location = new Point(5, 20 + specialVerBox.Height + textBox.Height);
-    label2.Text = "Playback Type:";
-    label2.Size = logicalSize(110, 30 - labelCover);
-    form.Controls.Add(label2);
-
-    ComboBox comboBox = new ComboBox();
-    comboBox.Enabled = Data.IsGameMaker2();
-    comboBox.Name = "Playback Type";
-    comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-    comboBox.Location = new Point(label2.Width + 5, 20 + specialVerBox.Height + textBox.Height);
-    comboBox.Size = logicalSize(160, 30);
-    comboBox.Anchor = AnchorStyles.Right;
-    foreach (string play in playbacks)
-        comboBox.Items.Add(play);
-    int defaultSelection = comboBox.Items.IndexOf("Frames Per Game Frame");
-    comboBox.SelectedIndex = defaultSelection == -1 ? 0 : defaultSelection;
-    form.Controls.Add(comboBox);
-
-    Label label3 = new Label();
-    label3.Location = new Point(5, 25 + specialVerBox.Height + textBox.Height + comboBox.Height);
-    label3.Text = "Origin Position:";
-    label3.Size = logicalSize(110, 30 - labelCover);
-    form.Controls.Add(label3);
-
-    ComboBox comboBox2 = new ComboBox();
-    comboBox2.Name = "Origin Position";
-    comboBox2.DropDownStyle = ComboBoxStyle.DropDownList;
-    comboBox2.Location = new Point(label2.Width + 5, 25 + specialVerBox.Height + textBox.Height + comboBox.Height);
-    comboBox2.Size = logicalSize(160, 30);
-    comboBox2.Anchor = AnchorStyles.Right;
-    foreach (string off in offsets)
-        comboBox2.Items.Add(off);
-    int defaultSelection2 = comboBox2.Items.IndexOf("Top Left");
-    comboBox2.SelectedIndex = defaultSelection2 == -1 ? 0 : defaultSelection2;
-    form.Controls.Add(comboBox2);
-
-    int bottomY = form.Size.Height - 30;
-
-    Button okBtn = new Button();
-    okBtn.Text = "&Confirm";
-    okBtn.Size = logicalSize(90, 30);
-    okBtn.Location = new Point(5, 35 + specialVerBox.Height + textBox.Height + comboBox.Height + comboBox2.Height);
-    okBtn.Anchor = AnchorStyles.Left;
-    form.Controls.Add(okBtn);
-
-    EventHandler updateFramesActive = (o, e) =>
-    {
-        specialVerBox.Enabled = isSpecialBox.Checked;
-        textBox.Enabled = isSpecialBox.Checked;
-    };
-
-    isSpecialBox.CheckedChanged += updateFramesActive;
-    updateFramesActive(null, null);
-
-    okBtn.Click += (o, e) =>
-    {
-        if (float.TryParse(textBox.Text, out float j))
-        {
-            if (uint.TryParse(specialVerBox.Text, out uint k))
-            {
-                isSpecial = isSpecialBox.Checked;
-                specialVer = k;
-                animSpd = j;
-                offresult = offsets[comboBox2.SelectedIndex];
-                playback = comboBox.SelectedIndex;
-                form.Close();
-            }
-            else
-            {
-                MessageBox.Show("Please use a number in the special version.");
-            }
-        }
-        else
-        {
-            MessageBox.Show("Please use a number in the animation speed.");
-        }
-    };
-    form.ShowDialog();
+    isSpecial = true;
+    specialVer = 1;
+    animSpd = 1;
+    offresult = "Center";
+    playback = 0;
+    createCollisionMasks = true;
 }
 
 // --- 3. Generate and Import gml_GlobalScript_character_data ---
