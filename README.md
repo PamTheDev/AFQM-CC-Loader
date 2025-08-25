@@ -34,7 +34,7 @@ Then, select the folder you unzipped in step 2. and select the "ImportCharacters
 
 <img width="844" height="189" alt="image" src="https://github.com/user-attachments/assets/fdb3cc50-b6bb-4000-8892-68deefd58ff4" />
 
-After that, another popup window should appear asking for you to select a folder, all you need to do is highlight the 'Import Assets' folder and click 'Select Folder'.
+After that, another popup window should appear asking for you to select a folder, all you need to do is highlight the 'Import Assets' folder and click 'Select Folder' **DO NOT OPEN THE FOLDER, ONLY CLICK IT ONCE, DO NOT DOUBLE CLICK IT**.
 
 ## 4. Finishing up
 Next, a window will appear and will tell you what the script is currently doing, once it disappears you can move on to the next step.
