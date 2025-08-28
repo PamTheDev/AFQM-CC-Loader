@@ -1,0 +1,22 @@
+This is a list of questions and answers for anyone who needs help on the loader.
+
+Q. How do I add more mods?
+A. All you need to do is copy the folder your mod inside of the 'Import assets' Folder and then start from step 3 of the mod loader instructions (https://github.com/PamTheDev/AFQM-CC-Loader)
+
+Q. BUT THERE'S NO FOLDER NAMED 'IMPORT ASSETS' OR 'CHARACTER ASSETS'???? IM SCARED
+A. In truth, the name of the folder that has all your mods DOES NOT MATTER. The name 'Import assets' or 'character assets' is just a name to make it more clear as to where the mods go. All that matters is that you SELECT THE RIGHT FOLDER when importing. The folder could be named 'Mods' If thats what you want, as long as you know where all your mod folders are located.
+
+Q. How do I remove mods?
+A. Just delete the mod's folder and restart from step 3 of the mod loader instructions. If that does not work, verify your game files and redo step 3 while the folder is removed.
+
+Q. Will this work after an update?
+A. The data.win file (the game itself) will be replaced on an update, so just start from step 3 again and your mods will be back.
+
+Q. I can see the character after loading it's mod!
+A. If even after making sure the files are being loaded then the mod is missing the 'name_portrait.json' file that makes the character appear on the character select screen. Contact the mod's owner and see if it is your copy or if it is a solvable problem.
+
+Q. This is all too confusing for me...
+A. That's okay! If you find yourself too confussed to try and troubleshoot the mod loader then that is entirely okay. This mod loader is for anyone who is willing to go throrugh trial and erro to play mods before official support comes out. This is just a primitave solution for having multiple mods installed, so there are bound to be some kinks at first beefore it becomes fool proof.
+
+Q. My question isn't listed/ I still need help!
+A. If you need further assitance, try going to the #mod-help channel on the discord server.
